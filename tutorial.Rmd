@@ -1,0 +1,165 @@
+---
+title: "ggplot2 tutorial"
+author: "Amelia McNamara"
+date: "April 22, 2015"
+output: ioslides_presentation
+---
+
+## ggplot2
+ggplot2 is an R package by Hadley Wickham that lets you make beautiful graphics in R (relatively) easily. 
+
+It's part of the Hadleyverse, which I recommend everyone get to know. It includes the packages dplyr, reshape2, stringr, lubridate... and many more.
+
+The name ggplot2 refers to The Grammar of Graphics (a famous book by Leland Wilkinson about data visualization theory).
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+require(knitr)
+opts_chunk$set(cache=TRUE, warning=FALSE, message=FALSE, fig.align='center')
+```
+
+## Getting started
+First, we need to install and load the package
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+```
+
+## Demo data
+
+I'm going to use the diamonds data that comes with ggplot2,
+```{r}
+str(diamonds)
+```
+
+## qplot()-- the easy way out
+```{r, plot.height=2}
+qplot(carat, data=diamonds)
+```
+
+## ggplot2 syntax
+```{r, eval=FALSE}
+qplot(carat, data=diamonds)
+```
+qplot() performs similar functionality to the base R graphics functions like plot(). But it aleady  might seem a little different, because we're not using the $ operator. 
+
+Instead, you're listing the name of the variable(s) and then telling R where to "look" for that variable with data=. This is like what we do when modeling using functions like lm().
+
+## More qplot()
+
+```{r}
+qplot(clarity, fill=cut, data=diamonds)
+```
+
+## ggplot()
+
+But, in order to really harness the power of ggplot2 you need to use the more general ggplot() command. The idea of the package is you can "layer" pieces on top of a plot to build it up over time.
+
+When you start, you always need to use a ggplot() call to initialize the plot. I usually put my dataset in here, and at least some of my "aesthetics." But, one of the things that can make ggplot2 tough to understand is that there are no hard and fast rules. 
+```{r}
+p1 <- ggplot(aes(x=clarity, fill=cut), data=diamonds)
+```
+If you try to show p1 at this point, you will get "Error: No layers in plot." This is because we haven't given it any geometric objects yet. 
+
+
+## geoms
+In order to get a plot to work, you need to use "geoms" (geometric objects) to specify the way you want your variables mapped to graphical parameters.
+
+```{r, message=FALSE}
+p1 + geom_bar()
+```
+
+
+## another geom
+```{r}
+p2 <- ggplot(aes(x=carat, y=depth), data=diamonds)
+p2 + geom_point()
+```
+
+## Same data, different geom
+```{r}
+p2 + geom_bin2d()
+```
+
+## Saving your work (or not)
+Notice that I'm not saving these geom layers-- I'm just running 
+
+p2 + [something] 
+
+to see what happens. But, I can save the new version to start building up my plot,
+```{r}
+p2 <- p2 + geom_bin2d()
+```
+
+##
+```{r}
+p2 <- p2 + xlab("Carat") + ylab("Depth") + 
+ guides(fill=guide_legend(title="Number of diamonds"))
+p2
+```
+
+## Everything is customizable 
+```{r}
+p2 + scale_fill_continuous(breaks=c(1500, 2500, 3500,4500))
+```
+
+##
+```{r}
+p2 + scale_fill_continuous(trans="log")
+```
+
+##
+```{r}
+p2 + scale_fill_continuous(trans="log", breaks=c(1,10,100,1000,5000))
+```
+
+
+## Working with dates
+```{r}
+# install.packages("lubridate")
+# install.packages("dplyr")
+library(lubridate)
+library(dplyr)
+```
+
+## Data with dates
+```{r}
+econ <- economics
+econ$date <- ymd(econ$date)
+old <- filter(econ, year(date)<"1970")
+old$date <- ymd(old$date)
+```
+
+##
+```{r}
+p3 <- ggplot(data=old) + geom_line(aes(x=date, y=pce))
+p3
+```
+
+## For nicer date formatting
+```{r}
+# install.packages("scales") # For nicer dates
+library(scales)
+```
+
+##
+```{r}
+p3 + 
+  scale_x_datetime(breaks = date_breaks("6 months"), 
+                   labels = date_format("%b %Y"))
+```
+
+##
+```{r}
+p3 + 
+  scale_x_datetime(breaks = date_breaks("6 months"), 
+                   labels = date_format("%B %y"))
+```
+
+## Working with geographic data
+
+
+
+## Resources for ggplot2
+
+* [ggplot2 cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf)
+* [R graphics cookbook](http://www.cookbook-r.com/Graphs/)
