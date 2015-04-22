@@ -68,6 +68,17 @@ In order to get a plot to work, you need to use "geoms" (geometric objects) to s
 p1 + geom_bar()
 ```
 
+## geoms have options
+
+```{r}
+p1 + geom_bar(position="dodge")
+```
+
+## lots of options
+```{r}
+p1 + geom_bar(position="fill")
+```
+
 
 ## another geom
 ```{r}
@@ -112,6 +123,15 @@ p2 + scale_fill_continuous(trans="log")
 p2 + scale_fill_continuous(trans="log", breaks=c(1,10,100,1000,5000))
 ```
 
+## Faceting
+```{r}
+p2 + facet_wrap(~color)
+```
+
+## 
+```{r}
+p2 + facet_grid(color~clarity)
+```
 
 ## Working with dates
 ```{r}
@@ -157,7 +177,83 @@ p3 +
 
 ## Working with geographic data
 
+```{r}
+#install.packages("ggmap")
+library(ggmap)
+```
 
+## 
+```{r}
+str(crime) # crime data from ggmap package
+```
+
+## 
+```{r}
+midlat <- mean(crime$lat, na.rm=TRUE)
+midlon <- mean(crime$lon, na.rm=TRUE)
+m1 <- get_map(source='stamen', location=c(midlon, midlat), 
+              maptype="watercolor", zoom=11)
+p4 <- ggmap(m1)
+p4 
+```
+
+## With points
+```{r}
+p4 + geom_point(aes(x=lon, y=lat), data=crime)
+```
+
+##
+```{r}
+p4 + geom_hex(aes(x=lon, y=lat), data=crime, alpha=0.8) + 
+  guides(fill=guide_legend(alpha=0.5, title="Number of crimes")) + 
+  xlab("") + ylab("") + theme(axis.line=element_blank(), 
+                              axis.text.x=element_blank(), 
+                              axis.text.y=element_blank(), 
+                              axis.ticks=element_blank(),
+                              axis.title.x=element_blank(), 
+                              axis.title.y=element_blank())
+```
+
+## Many layers
+```{r, eval=FALSE}
+baseplot <- ggplot() + 
+  aes(x=citystate, y=Freq, fill = Response, order=Response) +
+  facet_wrap(~year, nrow=3)+geom_bar(data = trial2$neg, stat = "identity") + 
+  scale_fill_manual(breaks=c("Not at all satisfied", "2", "3", "4", 
+                             "Extremely satisfied"), values=colorsB, 
+                    name="Response") + 
+  geom_bar(data = trial2$pos, stat = "identity") + coord_flip() + 
+  ggtitle("Community satisfaction") + xlab("") +ylab("") + 
+  scale_y_continuous(limits=c(-0.5, 1), 
+                     breaks=seq(from=-0.5, to=0.75, by=0.25), 
+                     labels=c("50%", "25%", "0", "25%", "50%", "75%")) + 
+  theme(legend.text=element_text(size=14), 
+        legend.title=element_text(size=16), 
+        axis.text=element_text(size=14), 
+        strip.text=element_text(size=14))
+baseplot 
+```
+
+## {.flexbox .vcenter}
+<img src="communitysat.jpg" width="380">
+
+
+## Saving your work 
+
+```{r, echo=FALSE}
+p4 <- p4 + geom_hex(aes(x=lon, y=lat), data=crime, alpha=0.8) + 
+  guides(fill=guide_legend(alpha=0.5, title="Number of crimes")) + 
+  xlab("") + ylab("") + theme(axis.line=element_blank(), 
+                              axis.text.x=element_blank(), 
+                              axis.text.y=element_blank(), 
+                              axis.ticks=element_blank(),
+                              axis.title.x=element_blank(), 
+                              axis.title.y=element_blank())
+```
+
+```{r, eval=FALSE}
+ggsave("beautiful_hex_map.jpg", plot=p4)
+```
 
 ## Resources for ggplot2
 
