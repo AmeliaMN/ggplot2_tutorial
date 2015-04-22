@@ -6,11 +6,11 @@ output: ioslides_presentation
 ---
 
 ## ggplot2
-ggplot2 is an R package by Hadley Wickham that lets you make beautiful graphics in R (relatively) easily. 
+ggplot2 is an R package by Hadley Wickham that lets you make beautiful R graphics (relatively) easily. 
 
-It's part of the Hadleyverse, which I recommend everyone get to know. It includes the packages dplyr, reshape2, stringr, lubridate... and many more.
+It's part of the Hadleyverse, which I recommend everyone get to know (dplyr, reshape2, stringr, lubridate... and many more).
 
-The name ggplot2 refers to The Grammar of Graphics (a famous book by Leland Wilkinson about data visualization theory).
+The name ggplot2 refers to a famous book on data visualization theory called The Grammar of Graphics.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 require(knitr)
@@ -18,15 +18,14 @@ opts_chunk$set(cache=TRUE, warning=FALSE, message=FALSE, fig.align='center')
 ```
 
 ## Getting started
-First, we need to install and load the package
+First, we need to install and load the package,
 ```{r}
 #install.packages("ggplot2")
 library(ggplot2)
 ```
 
-## Demo data
-
-I'm going to use the diamonds data that comes with ggplot2,
+## Diamonds data
+To start, I'm going to use the diamonds data that comes with ggplot2,
 ```{r}
 str(diamonds)
 ```
@@ -40,9 +39,9 @@ qplot(carat, data=diamonds)
 ```{r, eval=FALSE}
 qplot(carat, data=diamonds)
 ```
-qplot() performs similar functionality to the base R graphics functions like plot(). But it aleady  might seem a little different, because we're not using the $ operator. 
+qplot() performs similar functionality to the base R graphics function plot(). But it aleady  might seem a little different, because we're not using the $ operator. 
 
-Instead, you're listing the name of the variable(s) and then telling R where to "look" for that variable with data=. This is like what we do when modeling using functions like lm().
+Instead, you're listing the name of the variable(s) and then telling R where to "look" for that variable with "data=". This is like what we do when modeling using functions like lm().
 
 ## More qplot()
 
@@ -54,7 +53,7 @@ qplot(clarity, fill=cut, data=diamonds)
 
 But, in order to really harness the power of ggplot2 you need to use the more general ggplot() command. The idea of the package is you can "layer" pieces on top of a plot to build it up over time.
 
-When you start, you always need to use a ggplot() call to initialize the plot. I usually put my dataset in here, and at least some of my "aesthetics." But, one of the things that can make ggplot2 tough to understand is that there are no hard and fast rules. 
+You always need to use a ggplot() call to initialize the plot. I usually put my dataset in here, and at least some of my "aesthetics." But, one of the things that can make ggplot2 tough to understand is that there are no hard and fast rules. 
 ```{r}
 p1 <- ggplot(aes(x=clarity, fill=cut), data=diamonds)
 ```
@@ -64,7 +63,7 @@ If you try to show p1 at this point, you will get "Error: No layers in plot." Th
 ## geoms
 In order to get a plot to work, you need to use "geoms" (geometric objects) to specify the way you want your variables mapped to graphical parameters.
 
-```{r, message=FALSE}
+```{r, message=FALSE, fig.height=3}
 p1 + geom_bar()
 ```
 
@@ -74,13 +73,13 @@ p1 + geom_bar()
 p1 + geom_bar(position="dodge")
 ```
 
-## lots of options
+## Lots of options
 ```{r}
 p1 + geom_bar(position="fill")
 ```
 
 
-## another geom
+## Two variables
 ```{r}
 p2 <- ggplot(aes(x=carat, y=depth), data=diamonds)
 p2 + geom_point()
@@ -101,34 +100,34 @@ to see what happens. But, I can save the new version to start building up my plo
 p2 <- p2 + geom_bin2d()
 ```
 
-##
+## Better labels
 ```{r}
 p2 <- p2 + xlab("Carat") + ylab("Depth") + 
  guides(fill=guide_legend(title="Number of diamonds"))
 p2
 ```
 
-## Everything is customizable 
+## Different breaks
 ```{r}
 p2 + scale_fill_continuous(breaks=c(1500, 2500, 3500,4500))
 ```
 
-##
+## Log scale
 ```{r}
 p2 + scale_fill_continuous(trans="log")
 ```
 
-##
+## Log scale, different breaks
 ```{r}
 p2 + scale_fill_continuous(trans="log", breaks=c(1,10,100,1000,5000))
 ```
 
-## Faceting
+## Faceting (wrapping)
 ```{r}
 p2 + facet_wrap(~color)
 ```
 
-## 
+## Faceting (grid)
 ```{r}
 p2 + facet_grid(color~clarity)
 ```
@@ -144,6 +143,7 @@ library(dplyr)
 ## Data with dates
 ```{r}
 econ <- economics
+str(econ)
 econ$date <- ymd(econ$date)
 old <- filter(econ, year(date)<"1970")
 old$date <- ymd(old$date)
@@ -157,7 +157,7 @@ p3
 
 ## For nicer date formatting
 ```{r}
-# install.packages("scales") # For nicer dates
+# install.packages("scales") 
 library(scales)
 ```
 
@@ -207,11 +207,9 @@ p4 + geom_point(aes(x=lon, y=lat), data=crime)
 p4 + geom_hex(aes(x=lon, y=lat), data=crime, alpha=0.8) + 
   guides(fill=guide_legend(alpha=0.5, title="Number of crimes")) + 
   xlab("") + ylab("") + theme(axis.line=element_blank(), 
-                              axis.text.x=element_blank(), 
-                              axis.text.y=element_blank(), 
+                              axis.text=element_blank(), 
                               axis.ticks=element_blank(),
-                              axis.title.x=element_blank(), 
-                              axis.title.y=element_blank())
+                              axis.title=element_blank())
 ```
 
 ## Many layers
@@ -237,6 +235,18 @@ baseplot
 ## {.flexbox .vcenter}
 <img src="communitysat.jpg" width="380">
 
+## Colors
+
+```{r}
+# install.packages("RColorBrewer")
+library(RColorBrewer)
+display.brewer.all(n=5, type="qual")
+```
+
+## 
+```{r}
+p1 + geom_bar(position="dodge") + scale_fill_brewer(palette="Dark2")
+```
 
 ## Saving your work 
 
